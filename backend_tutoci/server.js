@@ -107,7 +107,7 @@ app.post('/registering', (req, res) => {
     }
 
     // 3. Préparation de la requête SQL
-    const query = `INSERT INTO user (user_fullname, user_email) VALUES (?, ?)`;
+    /*const query = `INSERT INTO user (user_fullname, user_email) VALUES (?, ?)`;
     const values = [fullname, email];
 
     handleQuery(query, values, (err, results) => {
@@ -118,7 +118,7 @@ app.post('/registering', (req, res) => {
                 message: "Erreur lors de l'inscription. Veuillez réessayer plus tard.",
                 error: err.message
             });
-        }
+        }*/
 
         // 4. Préparation de l'email HTML
         const mailOptions = {
@@ -160,7 +160,6 @@ app.post('/registering', (req, res) => {
             });
         });
     });
-});
 
 
 
