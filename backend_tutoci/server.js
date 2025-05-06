@@ -4,13 +4,13 @@ const path = require('path')
 const nodemailer = require('nodemailer');
 const compression = require('compression')
 const cookieParser = require('cookie-parser')
-//const cors = require('cors');
+const cors = require('cors');
 const mysql = require('mysql2')
 
 const app = express();
-/*app.use(cors({
-    origin: 'http://localhost:5173'
-}))*/
+app.use(cors({
+    origin: '*'
+}))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression())
 app.use(cookieParser());
