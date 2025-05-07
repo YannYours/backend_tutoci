@@ -16,7 +16,7 @@ app.use(cors({
 }));
 
 // Facultatif mais recommandé pour que les requêtes OPTIONS soient bien gérées :
-app.options('*', cors());
+app.options(/.*/, cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression())
