@@ -1,0 +1,15 @@
+name: Keep Render Awake
+
+# Déclenche la job toutes les 10 minutes
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the Render service
+        run: |
+          # Envoie une requête GET et ignore les erreurs pour ne pas faire échouer la job
+          curl -fsS https://backend-tutoci.onrender.com/healthcheck || true
