@@ -9,8 +9,15 @@ const mysql = require('mysql2')
 
 const app = express();
 app.use(cors({
-    origin: '*'
-}))
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+}));
+
+// Facultatif mais recommandé pour que les requêtes OPTIONS soient bien gérées :
+app.options('*', cors());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression())
 app.use(cookieParser());
