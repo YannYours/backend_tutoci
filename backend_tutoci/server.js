@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const path = require('path')
-const nodemailer = require('nodemailer');
 const compression = require('compression')
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
@@ -9,10 +8,10 @@ const mysql = require('mysql2')
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
 }));
 
 // Facultatif mais recommandé pour que les requêtes OPTIONS soient bien gérées :
@@ -23,17 +22,7 @@ app.use(compression())
 app.use(cookieParser());
 app.use(express.json());
 
-const transporter = nodemailer.createTransport({
-    host: 'max1.ngomory.ci',
-    port: 587,
-    secure: false,
-    auth: {
-        user: 'smtp-dev@talentium.info',
-        pass: 'TDBuIodzvNpQ'
-    }
-});
-
-/*const config = { host: 'localhost', user: 'root', password: 'rootyann@12345', database: 'bd_tutoci' };
+const config = { host: 'sql113.infinityfree.com', user: 'if0_38923565', password: 'odTuJD8cECXY', database: 'if0_38923565_bd_tutoci' };
 const pool = mysql.createPool({
     connectionLimit: 50,
     host: config.host,
@@ -88,7 +77,7 @@ function handleDisconnect() {
             connection.release();
         }
     });
-}*/
+}
 
 app.post('/registering', (req, res) => {
     const { fullname, email } = req.body;
@@ -113,7 +102,7 @@ app.post('/registering', (req, res) => {
     }
 
     // 3. Préparation de la requête SQL
-    /*const query = `INSERT INTO user (user_fullname, user_email) VALUES (?, ?)`;
+    const query = `INSERT INTO user (user_fullname, user_email) VALUES (?, ?)`;
     const values = [fullname, email];
 
     handleQuery(query, values, (err, results) => {
@@ -124,15 +113,15 @@ app.post('/registering', (req, res) => {
                 message: "Erreur lors de l'inscription. Veuillez réessayer plus tard.",
                 error: err.message
             });
-        }*/
+        }
 
-    // 4. Préparation de l'email HTML
-    const mailOptions = {
-        from: '"TutoCI Newsletter" <smtp-dev@talentium.info>',
-        to: email,
-        subject: '🎉 Bienvenue sur TutoCI - Inscription Réussie !',
-        text: `Bonjour ${fullname},\n\nVotre inscription à la newsletter TutoCI a bien été prise en compte.\n\nMerci et à très bientôt !`,
-        html: `
+        // 4. Préparation de l'email HTML
+        const mailOptions = {
+            from: '"TutoCI Newsletter" <smtp-dev@talentium.info>',
+            to: email,
+            subject: '🎉 Bienvenue sur TutoCI - Inscription Réussie !',
+            text: `Bonjour ${fullname},\n\nVotre inscription à la newsletter TutoCI a bien été prise en compte.\n\nMerci et à très bientôt !`,
+            html: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                     <h2>🎉 Bienvenue sur <span style="color:#007BFF;">TutoCI</span> !</h2>
                     <p>Bonjour <strong>${fullname}</strong>,</p>
@@ -145,31 +134,30 @@ app.post('/registering', (req, res) => {
                     <small style="color:#888;">Cet e-mail vous a été envoyé automatiquement suite à votre inscription. Si vous n’êtes pas à l’origine de cette action, veuillez l’ignorer.</small>
                 </div>
             `
-    };
+        };
 
-    // 5. Envoi de l'email
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error("Erreur lors de l'envoi de l'e-mail :", error);
-            return res.status(500).json({
-                success: false,
-                message: "Inscription réussie, mais l'e-mail de confirmation n'a pas pu être envoyé.",
-                error: error.message
+        // 5. Envoi de l'email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Erreur lors de l'envoi de l'e-mail :", error);
+                return res.status(500).json({
+                    success: false,
+                    message: "Inscription réussie, mais l'e-mail de confirmation n'a pas pu être envoyé.",
+                    error: error.message
+                });
+            }
+
+            // 6. Réponse en cas de succès complet
+            return res.status(200).json({
+                success: true,
+                message: 'Inscription à la newsletter réussie',
+                redirect: '/'
             });
-        }
-
-        // 6. Réponse en cas de succès complet
-        return res.status(200).json({
-            success: true,
-            message: 'Inscription à la newsletter réussie',
-            redirect: '/'
         });
     });
 });
 
-app.get('/healthcheck', (req, res) => {
-  res.sendStatus(200);
-});
+
 
 app.listen(3000, () => {
     console.log('Le serveur écoute sur le port 3000');
