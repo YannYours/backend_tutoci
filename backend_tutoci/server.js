@@ -167,8 +167,9 @@ app.post('/registering', (req, res) => {
     });
 });
 
-
-
+app.get('/healthcheck', (req, res) => {
+  res.sendStatus(200);
+});
 
 app.listen(3000, () => {
     console.log('Le serveur écoute sur le port 3000');
