@@ -34,8 +34,7 @@ const corsOptions = {
 
 // Applique CORS à toutes les routes
 app.use(cors(corsOptions));
-// Gère les pré-requêtes OPTIONS sur *toutes* les routes
-app.options('*', cors(corsOptions));
+app.options('/*', cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression());
