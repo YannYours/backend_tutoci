@@ -7,34 +7,14 @@ const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
-
-// Liste des origines autorisées en dev et prod
-const whitelist = [
-  'http://localhost:5173',
-  'https://frontend-tutoci.vercel.app',
-  // vous pouvez ajouter ici d'autres domaines si besoin
-];
-
-const corsOptions = {
-  origin(origin, callback) {
-    // `origin` sera undefined pour les outils comme Postman ou CURL
-    if (!origin || whitelist.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(
-        new Error(`CORS: origine "${origin}" non autorisée.`),
-        false
-      );
-    }
-  },
+app.use(cors({
+  origin: 'https://frontend-tutoci.vercel.app',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
-  credentials: true,
-};
-
-// Applique CORS à toutes les routes
-app.use(cors(corsOptions));
-app.options('/*', cors(corsOptions));
+  credentials: true
+}));
+// Permet de répondre aux OPTIONS
+app.options(/.*/, cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression());
@@ -71,6 +51,7 @@ function handleQuery(query, params, callback) {
       console.error('Erreur lors de l’exécution de la requête SQLite :', err);
       return callback(err);
     }
+    // `this` fait référence à la requête : on peut récupérer lastID ou changes
     return callback(null, { lastID: this.lastID, changes: this.changes });
   });
 }
@@ -79,6 +60,7 @@ function handleQuery(query, params, callback) {
 app.post('/registering', (req, res) => {
   const { fullname, email } = req.body;
 
+  // 1. Validation des champs
   if (!fullname || !email) {
     return res.status(400).json({
       success: false,
@@ -87,6 +69,7 @@ app.post('/registering', (req, res) => {
     });
   }
 
+  // 2. Vérification basique du format e-mail
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({
@@ -96,11 +79,13 @@ app.post('/registering', (req, res) => {
     });
   }
 
+  // 3. Requête d’insertion SQLite
   const query = `INSERT INTO user (user_fullname, user_email) VALUES (?, ?)`;
   const values = [fullname, email];
 
   handleQuery(query, values, (err, result) => {
     if (err) {
+      // Gestion des erreurs (ex : violation de contrainte UNIQUE)
       console.error("Erreur lors de l'inscription :", err.message);
       return res.status(500).json({
         success: false,
@@ -109,6 +94,7 @@ app.post('/registering', (req, res) => {
       });
     }
 
+    // Succès
     return res.status(200).json({
       success: true,
       message: 'Inscription à la newsletter réussie',
@@ -117,11 +103,6 @@ app.post('/registering', (req, res) => {
   });
 });
 
-app.get('/healthcheck', (req, res) => {
-  res.sendStatus(200);
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Le serveur écoute sur le port ${PORT}`);
+app.listen(3000, () => {
+  console.log('Le serveur écoute sur le port 3000');
 });
